@@ -1,49 +1,31 @@
+import yaml
+from yaml.loader import SafeLoader
+import streamlit_authenticator as stauth
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-
-import streamlit_authenticator as stauth
-import yaml
-from yaml.loader import SafeLoader
 import os
 
-# User config stored in YAML format (2 test users)
-user_config = {
-    'credentials': {
-        'usernames': {
-            'jeevan': {
-                'email': 'jeevan@example.com',
-                'name': 'Jeevan',
-                'password': '$2b$12$kVhv6eQWZwOzPln8Z1OKoeBEVWwOhVcQtVsdxmwNdqZZP75k/o2fa'
-            },
-            'admin': {
-                'email': 'admin@example.com',
-                'name': 'Admin',
-                'password': '$2b$12$ncTEXq/yI/jwruRr70n9du9oY1C36P.fx29DjygKkoDZ662nKV16a'
-            }
-        }
-    },
-    'cookie': {
-        'name': 'stackup_session',
-        'key': 'abc123_secret_key',  # Replace with real key in prod
-        'expiry_days': 1
-    },
-}
+# Load user config from external YAML file
+with open("config.yaml") as file:
+    config = yaml.load(file, Loader=SafeLoader)
 
-# Initialize the authenticator object
+# Initialize the authenticator
 authenticator = stauth.Authenticate(
-    user_config['credentials'],
-    user_config['cookie']['name'],
-    user_config['cookie']['key'],
-    user_config['cookie']['expiry_days']
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
 )
 
-# Display login box and check result
-auth_result = authenticator.login(location='main', fields={'title': 'Login'})
-st.write("auth_result =", auth_result)  # DEBUG LINE
+# Render login form and capture result
+    # Show login form
+login_result = authenticator.login(location='main', fields={'title': 'Login'})
 
-if auth_result is not None:
-    name, authentication_status, username = auth_result
+# Check and unpack login result
+if login_result is not None:
+    name, authentication_status, username = login_result
+
     if authentication_status is False:
         st.error("Invalid username or password.")
         st.stop()
