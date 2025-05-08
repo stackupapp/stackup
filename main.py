@@ -3,14 +3,14 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
-# --- Load config.yaml ---
-with open("config.yaml") as file:
+# Load the config from YAML
+with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
-# --- Set page config ---
-st.set_page_config(page_title="StackUp - Portfolio Analyzer")
+# Set up Streamlit page
+st.set_page_config(page_title="StackUp - Login Debug")
 
-# --- Setup Authenticator ---
+# Setup authenticator
 authenticator = stauth.Authenticate(
     credentials=config['credentials'],
     cookie_name=config['cookie']['name'],
@@ -18,10 +18,13 @@ authenticator = stauth.Authenticate(
     expiry_days=config['cookie']['expiry_days']
 )
 
-# --- Render Login Form ---
+# Perform login
 login_result = authenticator.login(location='main', fields={'title': 'Login'})
 
-# --- Handle Login Output ---
+# DEBUG: show the raw login result (only for dev)
+st.write("Login result:", login_result)
+
+# Handle result correctly
 if login_result is None:
     st.warning("Please log in.")
     st.stop()
@@ -33,9 +36,9 @@ else:
         st.stop()
     elif auth_status is True:
         authenticator.logout("Logout", "sidebar")
-        st.sidebar.success(f"Welcome, {name} 👋")
-        st.success("You are now logged in!")
+        st.sidebar.success(f"Welcome, {name}")
+        st.success("Login successful!")
 
-        # 👇 App content here after login
-        st.title("Welcome to StackUp 🚀")
-        st.write("This is your investment analysis dashboard.")
+        # Your app logic goes here
+        st.title("StackUp Dashboard")
+        st.write("Upload your investment CSV to begin...")
