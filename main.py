@@ -18,6 +18,14 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
+# Clear broken session cookies if present
+if 'authentication_status' in st.session_state:
+    del st.session_state['authentication_status']
+    if 'name' in st.session_state:
+        del st.session_state['name']
+    if 'username' in st.session_state:
+        del st.session_state['username']
+
 # Login
 name, auth_status, username = authenticator.login('Login', 'main')
 
