@@ -40,20 +40,23 @@ authenticator = stauth.Authenticate(
 
 # Display login box and check result
 auth_result = authenticator.login(location='main', fields={'title': 'Login'})
-st.write("Login Result:", auth_result)  # DEBUG LINE
+st.write("auth_result =", auth_result)  # DEBUG LINE
 
 if auth_result is not None:
-    name, auth_status, username = auth_result  # FIXED ORDER
-    if auth_status is False:
+    name, authentication_status, username = auth_result
+    if authentication_status is False:
         st.error("Invalid username or password.")
         st.stop()
-    elif auth_status is True:
+    elif authentication_status is True:
         authenticator.logout("Logout", "sidebar")
         st.sidebar.success(f"Logged in as: {name}")
+    else:
+        st.warning("Please log in.")
+        st.stop()
 else:
     st.warning("Please log in.")
     st.stop()
-
+    
 combined_df = pd.DataFrame()  # Define empty DataFrame in advance
 # Set page config
 st.set_page_config(page_title="StackUp - Portfolio Analyzer")
