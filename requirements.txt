@@ -1,0 +1,6 @@
+streamlit
+streamlit-authenticator
+extra-streamlit-components
+pyyaml
+pandas
+plotly
