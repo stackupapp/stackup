@@ -3,13 +3,14 @@ import pandas as pd
 import plotly.express as px
 import streamlit_authenticator as stauth
 import yaml
+from yaml.loader import SafeLoader
 import os
 
-# --- Load config.yaml ---
-with open("config.yaml") as file:
-    config = yaml.safe_load(file)
+# --- Load credentials from YAML config ---
+with open('config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
 
-# --- Set page config ---
+# --- Page config ---
 st.set_page_config(page_title="StackUp - Portfolio Analyzer")
 
 # --- Authenticator setup ---
@@ -20,21 +21,15 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# --- Login ---
-# Unrendered login result
-login_result = authenticator.login(location='unrendered', fields={'title': 'Login'})
-
-# Check and unpack if successful
-if login_result:
-    name, auth_status, username = login_result
-else:
-    st.error("Login failed. Please try again.")
+# --- Login form ---
+result = authenticator.login(location='main', fields={'title': 'Login'})
+if result is None:
+    st.error("Login failed. Please check your credentials.")
     st.stop()
+else:
+    name, auth_status, username = result
 
-# Show the actual login UI
-authenticator.login(location='main', fields={'title': 'Login'})
-
-# --- Handle authentication ---
+# --- Authentication logic ---
 if auth_status is False:
     st.error("Invalid username or password.")
     st.stop()
@@ -45,11 +40,11 @@ else:
     authenticator.logout("Logout", "sidebar")
     st.sidebar.success(f"Logged in as: {name}")
 
-# --- App Content ---
+# --- Main app content ---
 st.title("StackUp: Investment Portfolio Analyzer")
 st.write("Upload one or more CSV files from Thinkorswim, IBKR, or Robinhood. This app will detect, parse, and analyze your investments.")
 
-uploaded_files = st.file_uploader("Upload investment CSV files", type=["csv"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload one or more investment CSV files", type=["csv"], accept_multiple_files=True)
 combined_df = pd.DataFrame()
 
 def detect_platform(columns):
@@ -60,8 +55,7 @@ def detect_platform(columns):
         return "Robinhood"
     elif {"Symbol", "Buy/Sell", "Quantity", "T. Price", "Net Amount", "Market Price"}.issubset(cols):
         return "IBKR"
-    else:
-        return "Unknown"
+    return "Unknown"
 
 def process_tos(df):
     df["Qty"] = df["Qty"].astype(str).str.replace("+", "", regex=False).astype(float)
@@ -92,19 +86,15 @@ def process_ibkr(df):
 
 if uploaded_files:
     all_data = []
-    user_dir = os.path.join("data", str(username))
-    os.makedirs(user_dir, exist_ok=True)
-
     for file in uploaded_files:
         try:
+            user_dir = os.path.join("data", str(username))
+            os.makedirs(user_dir, exist_ok=True)
             file_path = os.path.join(user_dir, file.name)
             with open(file_path, "wb") as f:
                 f.write(file.getbuffer())
-
             df = pd.read_csv(file_path)
             platform = detect_platform(df.columns)
-
-            st.write(f"Detected platform: {platform}")
             if platform == "Thinkorswim":
                 all_data.append(process_tos(df))
             elif platform == "Robinhood":
@@ -112,12 +102,13 @@ if uploaded_files:
             elif platform == "IBKR":
                 all_data.append(process_ibkr(df))
             else:
-                st.warning(f"Unsupported CSV format in {file.name}")
+                st.warning(f"Unsupported format in file: {file.name}")
         except Exception as e:
-            st.error(f"Error in {file.name}: {e}")
+            st.error(f"Error processing {file.name}: {e}")
 
     if all_data:
         combined_df = pd.concat(all_data, ignore_index=True)
+
         st.subheader("Combined Portfolio Overview")
         st.dataframe(combined_df)
 
@@ -128,22 +119,16 @@ if uploaded_files:
         st.subheader("Portfolio Summary")
         st.write(f"Total Invested: ${total_invested:,.2f}")
         st.write(f"Current Value: ${total_value:,.2f}")
-        st.write(f"Overall Profit/Loss: ${total_profit:,.2f}")
+        st.write(f"Profit/Loss: ${total_profit:,.2f}")
 
-        st.subheader("Allocation by Symbol")
-        group_col = "Symbol" if "Symbol" in combined_df.columns else "Instrument"
-        if group_col:
-            allocation = combined_df.groupby(group_col)["Current Value"].sum().reset_index()
-            fig = px.pie(allocation, names=group_col, values="Current Value", title="Asset Allocation")
-            st.plotly_chart(fig)
+        # Pie chart
+        symbol_col = "Symbol" if "Symbol" in combined_df.columns else "Instrument"
+        allocation = combined_df.groupby(symbol_col)["Current Value"].sum().reset_index()
+        fig = px.pie(allocation, names=symbol_col, values="Current Value", title="Asset Allocation by Value")
+        st.plotly_chart(fig)
 
-        st.subheader("Download Your Combined Portfolio")
-        csv_export = combined_df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="Download CSV",
-            data=csv_export,
-            file_name="stackup_portfolio_summary.csv",
-            mime="text/csv"
-        )
+        # Download CSV
+        csv_data = combined_df.to_csv(index=False).encode("utf-8")
+        st.download_button("Download Combined Portfolio", data=csv_data, file_name="portfolio_summary.csv", mime="text/csv")
 else:
     st.info("No valid investment data uploaded.")
