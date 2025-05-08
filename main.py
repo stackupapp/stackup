@@ -18,8 +18,13 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# Login (for streamlit-authenticator v0.2.3)
+# Login
 name, auth_status, username = authenticator.login('Login', 'main')
+
+# This check avoids the "name not defined" error if the session is broken
+if auth_status is None and 'authentication_status' not in st.session_state:
+    st.warning("Session is invalid or expired. Please refresh and login again.")
+    st.stop()
 
 # Handle login result
 if auth_status:

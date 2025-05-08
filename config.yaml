@@ -3,11 +3,11 @@ credentials:
     jeevan:
       email: jeevan@example.com
       name: Jeevan
-      password: "$2b$12$qXnrU6jNBfjW6VUJYKinNOQkw.nChAqhgkwttmx7kN0OgRQUtk49S"
+      password: "$2b$12$UJ8JDbKh8eoQwOCa.NAzAeQ1l8SKYTdCOT/42sH4QIsezLnB9/Hnq"
     admin:
       email: admin@example.com
       name: Admin
-      password: "$2b$12$gMJC./x23ZHAKbJkmpPIJ.Zv3MGv.TZ/iMX3wlU6hwuf.2IlZj5t6"
+      password: "$2b$12$J9cjNGKfpaiu7vqxqSmaA.Ukdsi1DWTZaPKx2Y7K65VqHlp9LTgTK"
 
 cookie:
   name: stackup_session
