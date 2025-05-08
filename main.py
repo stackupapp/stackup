@@ -1,11 +1,14 @@
 import streamlit as st
-import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
+import streamlit_authenticator as stauth
 
-# Load YAML config
-with open("config.yaml") as file:
+# Load config
+with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
+
+# Set page title
+st.set_page_config(page_title="StackUp Login Test")
 
 # Authenticator setup
 authenticator = stauth.Authenticate(
@@ -15,21 +18,21 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# Login form
+# Login
 auth_result = authenticator.login(location='main', fields={'title': 'Login'})
 
-# Handle login result
-if auth_result is not None:
+# Result check
+if auth_result:
     name, auth_status, username = auth_result
 
-    if auth_status is False:
-        st.error("Invalid username or password.")
-    elif auth_status is None:
-        st.warning("Please log in.")
-    else:
+    if auth_status:
         authenticator.logout("Logout", "sidebar")
-        st.sidebar.success(f"Logged in as: {name}")
-        st.title("StackUp Investment Analyzer")
-        st.write("Upload your CSV files here and begin analysis.")
+        st.sidebar.success(f"Logged in as {name}")
+        st.success("You are now logged in!")
+        st.write("Welcome to StackUp 🚀")
+    elif auth_status is False:
+        st.error("Invalid credentials. Try again.")
+    elif auth_status is None:
+        st.warning("Please enter your credentials.")
 else:
     st.warning("Please log in.")
