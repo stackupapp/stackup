@@ -19,8 +19,7 @@ authenticator = stauth.Authenticate(
 )
 
 # Display login form
-name, auth_status, username = authenticator.login('Login', location='main')
-
+name, auth_status, username = authenticator.login(form_name='Login', location='main')
 # Handle login outcome
 if auth_status is True:
     authenticator.logout('Logout', 'sidebar')
