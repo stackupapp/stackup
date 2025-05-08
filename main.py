@@ -7,12 +7,12 @@ credentials = {
         "jeevan": {
             "email": "jeevan@example.com",
             "name": "Jeevan",
-            "password": "$2b$12$UmS7xlJO2vpUxejE.cV6OOYShKt8zQ6BICmIxCLbRtPd0WNqI2Dwm"
+            "password": "$2b$12$Pkeip3gvqSqFSPWhBqqZBOGtAIDSzrrb0m/iwATtBpPc8ha7.NH8u"
         },
         "admin": {
             "email": "admin@example.com",
             "name": "Admin",
-            "password": "$2b$12$FWPTFnJ1fL0eb6AaPbYnw.QvW8d8Yt5lwD/EgI2bXeCluccFVoB5"
+            "password": "$2b$12$DtVoayZDXOoWcx3xEeYMXecQokGF2Yohmv4tps235cJBfebaRXxma"
         }
     }
 }
