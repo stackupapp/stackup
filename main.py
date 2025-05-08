@@ -14,7 +14,7 @@ user_config = {
             'jeevan': {
                 'email': 'jeevan@example.com',
                 'name': 'Jeevan',
-                'password': '$2b$12$0KH3U3wazziOl7amuROyxOpflFdIP6OBqy6dY2dTAksPcWCVECxma'
+                'password': '$2b$12$wzU08YZq6HSb9fW1GM9oqexranJkmUZ9lBq.zmQl3Vk6UnY8NwEGG'
             },
             'admin': {
                 'email': 'admin@example.com',
