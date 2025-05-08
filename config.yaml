@@ -3,18 +3,13 @@ credentials:
     jeevan:
       email: jeevan@example.com
       name: Jeevan
-      password: '$2b$12$RkVvlRRZMnWQr.7keW9xEOnAxrI7DClbn6WDVQ6xRIbLZweOHK53i'
+      password: "$2b$12$qXnrU6jNBfjW6VUJYKinNOQkw.nChAqhgkwttmx7kN0OgRQUtk49S"
     admin:
       email: admin@example.com
       name: Admin
-      password: '$2b$12$MwZ8k5eG7Bt3b8uB3FV5DePFeHZKbLspvA1D3Dd8cRMXKzKmlC8tK'
+      password: "$2b$12$gMJC./x23ZHAKbJkmpPIJ.Zv3MGv.TZ/iMX3wlU6hwuf.2IlZj5t6"
 
 cookie:
-  name: stackup_cookie
-  key: some_signature_key
+  name: stackup_session
+  key: abc123_secret_key
   expiry_days: 1
-
-preauthorized:
-  emails:
-    - jeevan@example.com
-    - admin@example.com
