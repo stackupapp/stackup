@@ -1,0 +1,15 @@
+credentials:
+  usernames:
+    jeevan:
+      email: jeevan@example.com
+      name: Jeevan
+      password: '$2b$12$kVhv6eQWZwOzPln8Z1OKoeBEVWwOhVcQtVsdxmwNdqZZP75k/o2fa'
+    admin:
+      email: admin@example.com
+      name: Admin
+      password: '$2b$12$ncTEXq/yI/jwruRr70n9du9oY1C36P.fx29DjygKkoDZ662nKV16a'
+
+cookie:
+  name: stackup_session
+  key: abc123_secret_key
+  expiry_days: 1
