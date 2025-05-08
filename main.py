@@ -14,12 +14,12 @@ user_config = {
             'jeevan': {
                 'email': 'jeevan@example.com',
                 'name': 'Jeevan',
-                'password': '$2b$12$qXnrU6jNBfjW6VUJYKinNOQkw.nChAqhgkwttmx7kN0OgRQUtk49S'
+                'password': '$2b$12$0KH3U3wazziOl7amuROyxOpflFdIP6OBqy6dY2dTAksPcWCVECxma'
             },
             'admin': {
                 'email': 'admin@example.com',
                 'name': 'Admin',
-                'password': '$2b$12$gMJC./x23ZHAKbJkmpPIJ.Zv3MGv.TZ/iMX3wlU6hwuf.2IlZj5t6'
+                'password': '$2b$12$C8fgnzfMiZhDKMN1/AExtOsED59anUq/.2MtV3hdrl5K0nfV8Sv/a'
             }
         }
     },
