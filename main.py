@@ -28,9 +28,6 @@ user_config = {
         'key': 'abc123_secret_key',  # Replace with real key in prod
         'expiry_days': 1
     },
-    'preauthorized': {
-        'emails': ['jeevan@example.com', 'admin@example.com']
-    }
 }
 
 # Initialize the authenticator object
@@ -38,27 +35,24 @@ authenticator = stauth.Authenticate(
     user_config['credentials'],
     user_config['cookie']['name'],
     user_config['cookie']['key'],
-    user_config['cookie']['expiry_days'],
-    user_config['preauthorized']
+    user_config['cookie']['expiry_days']
 )
 
-# Display login box
-auth_result = authenticator.login("Login", "main")
+# Display login box and check result
+auth_result = authenticator.login(location='main', fields={'title': 'Login'})
 
-# If not logged in, stop here and show login form
+# Check if login() returned anything before unpacking
 if auth_result is not None:
     name, auth_status, username = auth_result
+    if auth_status is False:
+        st.error("Invalid username or password.")
+        st.stop()
+    elif auth_status is True:
+        authenticator.logout("Logout", "sidebar")
+        st.sidebar.success(f"Logged in as: {name}")
 else:
     st.warning("Please log in.")
     st.stop()
-
-if auth_status is False:
-    st.error("Invalid username or password.")
-    st.stop()
-
-authenticator.logout("Logout", "sidebar")
-st.sidebar.success(f"Logged in as: {name}")
-
 
 combined_df = pd.DataFrame()  # Define empty DataFrame in advance
 # Set page config
@@ -122,7 +116,17 @@ if uploaded_files:
 
     for file in uploaded_files:
         try:
-            df = pd.read_csv(file)
+            # Create user-specific folder if it doesn't exist
+            user_dir = os.path.join("data", str(username))
+            os.makedirs(user_dir, exist_ok=True)
+
+            # Save uploaded file into that user's folder
+            file_path = os.path.join(user_dir, file.name)
+            with open(file_path, "wb") as f:
+                f.write(file.getbuffer())
+
+            # Now read the saved file
+            df = pd.read_csv(file_path)
             platform = detect_platform(df.columns)
 
             st.write(f"Processing file: {file.name}")
