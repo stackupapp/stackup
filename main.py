@@ -22,21 +22,19 @@ authenticator = stauth.Authenticate(
 )
 
 # --- Login form ---
-result = authenticator.login(location='main', fields={'title': 'Login'})
-if result is None:
-    st.error("Login failed. Please check your credentials.")
-    st.stop()
-else:
-    name, auth_status, username = result
+login_result = authenticator.login(location='main', fields={'title': 'Login'})
 
-# --- Authentication logic ---
-if auth_status is False:
-    st.error("Invalid username or password.")
-    st.stop()
-elif auth_status is None:
+# Handle authentication logic
+if login_result is None:
     st.warning("Please log in.")
     st.stop()
-else:
+
+name, auth_status, username = login_result
+
+if auth_status is False:
+    st.error("Login failed. Please check your credentials.")
+    st.stop()
+elif auth_status is True:
     authenticator.logout("Logout", "sidebar")
     st.sidebar.success(f"Logged in as: {name}")
 
