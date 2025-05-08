@@ -14,12 +14,12 @@ user_config = {
             'jeevan': {
                 'email': 'jeevan@example.com',
                 'name': 'Jeevan',
-                'password': '$2b$12$wzU08YZq6HSb9fW1GM9oqexranJkmUZ9lBq.zmQl3Vk6UnY8NwEGG'
+                'password': '$2b$12$fx9TOAfjHei.Xn5ajufhGOWCOnPIXtY3V1D63eV6IWH9.CG.nGCau'
             },
             'admin': {
                 'email': 'admin@example.com',
                 'name': 'Admin',
-                'password': '$2b$12$C8fgnzfMiZhDKMN1/AExtOsED59anUq/.2MtV3hdrl5K0nfV8Sv/a'
+                'password': '$2b$12$KKTD504JZONt/G9.t8qPJODw93aPzWGdFDQ8LvVJJQ/h9jM9iAF2K'
             }
         }
     },
@@ -40,6 +40,7 @@ authenticator = stauth.Authenticate(
 
 # Display login box and check result
 auth_result = authenticator.login(location='main', fields={'title': 'Login'})
+st.write("Login Result:", auth_result)  # DEBUG LINE
 
 # Check if login() returned anything before unpacking
 if auth_result is not None:
