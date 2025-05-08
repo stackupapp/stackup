@@ -42,9 +42,8 @@ authenticator = stauth.Authenticate(
 auth_result = authenticator.login(location='main', fields={'title': 'Login'})
 st.write("Login Result:", auth_result)  # DEBUG LINE
 
-# Check if login() returned anything before unpacking
 if auth_result is not None:
-    auth_status, username, name = auth_result
+    name, auth_status, username = auth_result  # FIXED ORDER
     if auth_status is False:
         st.error("Invalid username or password.")
         st.stop()
