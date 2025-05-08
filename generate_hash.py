@@ -1,11 +1,12 @@
-import streamlit_authenticator as stauth
+import bcrypt
 
-# List of plain text passwords for your users
-passwords = ['stack123', 'admin456']  # jeevan's and admin's passwords
+# Dictionary of usernames and their plain-text passwords
+passwords = {
+    "jeevan": "stack123",
+    "admin": "admin123"
+}
 
-# Generate hashed passwords
-hashed_passwords = stauth.Hasher(passwords).generate()
-
-# Print hashed passwords to paste into config.yaml
-for user, pwd in zip(['jeevan', 'admin'], hashed_passwords):
-    print(f"{user}: {pwd}")
+# Generate and print bcrypt hashes
+for user, pwd in passwords.items():
+    hashed = bcrypt.hashpw(pwd.encode(), bcrypt.gensalt())
+    print(f"{user}: {hashed.decode()}")

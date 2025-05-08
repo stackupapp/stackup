@@ -1,43 +1,47 @@
 import streamlit as st
-import yaml
-from yaml.loader import SafeLoader
-import streamlit_authenticator as stauth
+import bcrypt
 
-# Load config.yaml
-with open('config.yaml') as file:
-    config = yaml.load(file, Loader=SafeLoader)
+# --- Hardcoded users with hashed passwords ---
+credentials = {
+    "usernames": {
+        "jeevan": {
+            "email": "jeevan@example.com",
+            "name": "Jeevan",
+            "password": "$2b$12$UmS7xlJO2vpUxejE.cV6OOYShKt8zQ6BICmIxCLbRtPd0WNqI2Dwm"
+        },
+        "admin": {
+            "email": "admin@example.com",
+            "name": "Admin",
+            "password": "$2b$12$FWPTFnJ1fL0eb6AaPbYnw.QvW8d8Yt5lwD/EgI2bXeCluccFVoB5"
+        }
+    }
+}
 
-# Page config
-st.set_page_config(page_title="StackUp Login")
+# --- Initialize session state ---
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+    st.session_state.username = ""
 
-# Authenticator setup
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
-)
+# --- Logged-in UI ---
+if st.session_state.logged_in:
+    st.sidebar.success(f"Welcome, {st.session_state.username}!")
+    if st.sidebar.button("Logout"):
+        st.session_state.logged_in = False
+        st.session_state.username = ""
+        st.experimental_rerun()
+    st.title("StackUp Portfolio Dashboard")
+    st.write("Upload your CSVs and view analysis here.")
 
-# Prevent KeyError by initializing session keys
-for key in ['authentication_status', 'name', 'username']:
-    if key not in st.session_state:
-        st.session_state[key] = None
-
-# Handle broken cookies from previous crash
-if st.session_state['authentication_status'] is None and 'authentication_status' in st.session_state:
-    del st.session_state['authentication_status']
-    del st.session_state['name']
-    del st.session_state['username']
-
-# Show login form
-name, auth_status, username = authenticator.login('Login', 'main')
-
-# Handle login result
-if auth_status:
-    authenticator.logout('Logout', 'sidebar')
-    st.sidebar.success(f"Welcome {name}!")
-    st.success("You are now logged in.")
-elif auth_status is False:
-    st.error("Invalid username or password.")
-elif auth_status is None:
-    st.warning("Please log in.")
+# --- Login UI ---
+else:
+    st.title("Login to StackUp")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        user_record = credentials["usernames"].get(username)
+        if user_record and bcrypt.checkpw(password.encode(), user_record["password"].encode()):
+            st.session_state.logged_in = True
+            st.session_state.username = username
+            st.experimental_rerun()
+        else:
+            st.error("Invalid username or password.")

@@ -1,8 +1,7 @@
 entrypoint = "main.py"
 modules = ["python-3.11"]
 
-run = ["streamlit", "run", "main.py"]
-
+run = "streamlit run main.py"
 [nix]
 packages = ["cargo", "libiconv", "rustc"]
 
