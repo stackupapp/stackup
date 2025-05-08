@@ -43,7 +43,7 @@ auth_result = authenticator.login(location='main', fields={'title': 'Login'})
 
 # Check if login() returned anything before unpacking
 if auth_result is not None:
-    name, auth_status, username = auth_result
+    auth_status, username, name = auth_result
     if auth_status is False:
         st.error("Invalid username or password.")
         st.stop()
