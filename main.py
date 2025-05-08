@@ -3,12 +3,12 @@ import yaml
 from yaml.loader import SafeLoader
 import streamlit_authenticator as stauth
 
-# Load config
+# Load config.yaml
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 # Page config
-st.set_page_config(page_title="StackUp Login Test")
+st.set_page_config(page_title="StackUp Login")
 
 # Authenticator setup
 authenticator = stauth.Authenticate(
@@ -18,21 +18,19 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# Clear broken session cookies if present
-if 'authentication_status' in st.session_state:
+# Prevent KeyError by initializing session keys
+for key in ['authentication_status', 'name', 'username']:
+    if key not in st.session_state:
+        st.session_state[key] = None
+
+# Handle broken cookies from previous crash
+if st.session_state['authentication_status'] is None and 'authentication_status' in st.session_state:
     del st.session_state['authentication_status']
-    if 'name' in st.session_state:
-        del st.session_state['name']
-    if 'username' in st.session_state:
-        del st.session_state['username']
+    del st.session_state['name']
+    del st.session_state['username']
 
-# Login
+# Show login form
 name, auth_status, username = authenticator.login('Login', 'main')
-
-# This check avoids the "name not defined" error if the session is broken
-if auth_status is None and 'authentication_status' not in st.session_state:
-    st.warning("Session is invalid or expired. Please refresh and login again.")
-    st.stop()
 
 # Handle login result
 if auth_status:
