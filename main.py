@@ -3,14 +3,16 @@ import pandas as pd
 import plotly.express as px
 import streamlit_authenticator as stauth
 import yaml
-from yaml.loader import SafeLoader
 import os
 
-# ✅ Load config from YAML file
+# --- Load config.yaml ---
 with open("config.yaml") as file:
-    config = yaml.load(file, Loader=SafeLoader)
+    config = yaml.safe_load(file)
 
-# ✅ Create authenticator from YAML config
+# --- Set page config ---
+st.set_page_config(page_title="StackUp - Portfolio Analyzer")
+
+# --- Authenticator setup ---
 authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
@@ -18,34 +20,38 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# ✅ Display login box
-login_result = authenticator.login(location='main', fields={'title': 'Login'})
+# --- Login ---
+# Unrendered login result
+login_result = authenticator.login(location='unrendered', fields={'title': 'Login'})
 
-if login_result is not None:
+# Check and unpack if successful
+if login_result:
     name, auth_status, username = login_result
-
-    if auth_status:
-        authenticator.logout("Logout", "sidebar")
-        st.sidebar.success(f"Logged in as: {name}")
-    elif auth_status is False:
-        st.error("Invalid username or password.")
-        st.stop()
-    else:
-        st.warning("Please log in.")
-        st.stop()
 else:
-    st.warning("Please log in.")
+    st.error("Login failed. Please try again.")
     st.stop()
 
-# ✅ Setup after login
-combined_df = pd.DataFrame()
-st.set_page_config(page_title="StackUp - Portfolio Analyzer")
+# Show the actual login UI
+authenticator.login(location='main', fields={'title': 'Login'})
+
+# --- Handle authentication ---
+if auth_status is False:
+    st.error("Invalid username or password.")
+    st.stop()
+elif auth_status is None:
+    st.warning("Please log in.")
+    st.stop()
+else:
+    authenticator.logout("Logout", "sidebar")
+    st.sidebar.success(f"Logged in as: {name}")
+
+# --- App Content ---
 st.title("StackUp: Investment Portfolio Analyzer")
 st.write("Upload one or more CSV files from Thinkorswim, IBKR, or Robinhood. This app will detect, parse, and analyze your investments.")
 
-uploaded_files = st.file_uploader("Upload investment CSVs", type=["csv"], accept_multiple_files=True)
+uploaded_files = st.file_uploader("Upload investment CSV files", type=["csv"], accept_multiple_files=True)
+combined_df = pd.DataFrame()
 
-# Detect platform by column headers
 def detect_platform(columns):
     cols = set(columns)
     if {"Instrument", "Qty", "Trade Price", "Mark"}.issubset(cols):
@@ -84,13 +90,13 @@ def process_ibkr(df):
     df["Broker"] = "IBKR"
     return df[["Symbol", "Quantity", "T. Price", "Market Price", "Invested", "Current Value", "Profit", "Broker"]]
 
-# ✅ Process uploaded files
 if uploaded_files:
     all_data = []
+    user_dir = os.path.join("data", str(username))
+    os.makedirs(user_dir, exist_ok=True)
+
     for file in uploaded_files:
         try:
-            user_dir = os.path.join("data", str(username))
-            os.makedirs(user_dir, exist_ok=True)
             file_path = os.path.join(user_dir, file.name)
             with open(file_path, "wb") as f:
                 f.write(file.getbuffer())
@@ -98,23 +104,17 @@ if uploaded_files:
             df = pd.read_csv(file_path)
             platform = detect_platform(df.columns)
 
-            st.write(f"Processing file: {file.name}")
             st.write(f"Detected platform: {platform}")
-
             if platform == "Thinkorswim":
-                cleaned = process_tos(df)
+                all_data.append(process_tos(df))
             elif platform == "Robinhood":
-                cleaned = process_robinhood(df)
+                all_data.append(process_robinhood(df))
             elif platform == "IBKR":
-                cleaned = process_ibkr(df)
+                all_data.append(process_ibkr(df))
             else:
-                st.warning(f"Unsupported CSV format: {file.name}")
-                continue
-
-            all_data.append(cleaned)
-
+                st.warning(f"Unsupported CSV format in {file.name}")
         except Exception as e:
-            st.error(f"Error processing {file.name}: {e}")
+            st.error(f"Error in {file.name}: {e}")
 
     if all_data:
         combined_df = pd.concat(all_data, ignore_index=True)
@@ -128,16 +128,22 @@ if uploaded_files:
         st.subheader("Portfolio Summary")
         st.write(f"Total Invested: ${total_invested:,.2f}")
         st.write(f"Current Value: ${total_value:,.2f}")
-        st.write(f"Profit/Loss: ${total_profit:,.2f}")
+        st.write(f"Overall Profit/Loss: ${total_profit:,.2f}")
 
         st.subheader("Allocation by Symbol")
         group_col = "Symbol" if "Symbol" in combined_df.columns else "Instrument"
-        allocation = combined_df.groupby(group_col)["Current Value"].sum().reset_index()
-        fig = px.pie(allocation, names=group_col, values="Current Value", title="Asset Allocation")
-        st.plotly_chart(fig)
+        if group_col:
+            allocation = combined_df.groupby(group_col)["Current Value"].sum().reset_index()
+            fig = px.pie(allocation, names=group_col, values="Current Value", title="Asset Allocation")
+            st.plotly_chart(fig)
 
-        st.subheader("Download Combined Portfolio")
-        csv_data = combined_df.to_csv(index=False).encode("utf-8")
-        st.download_button("Download CSV", data=csv_data, file_name="portfolio_summary.csv", mime="text/csv")
+        st.subheader("Download Your Combined Portfolio")
+        csv_export = combined_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Download CSV",
+            data=csv_export,
+            file_name="stackup_portfolio_summary.csv",
+            mime="text/csv"
+        )
 else:
     st.info("No valid investment data uploaded.")
