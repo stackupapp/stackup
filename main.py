@@ -1,16 +1,16 @@
 import streamlit as st
-import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
+import streamlit_authenticator as stauth
 
-# Load config from config.yaml
-with open("config.yaml") as file:
+# Load config
+with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 # Page config
 st.set_page_config(page_title="StackUp Login Test")
 
-# Setup authenticator
+# Authenticator setup
 authenticator = stauth.Authenticate(
     config['credentials'],
     config['cookie']['name'],
@@ -18,10 +18,11 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
-# Display login form
-name, auth_status, username = authenticator.login(form_name='Login', location='main')
-# Handle login outcome
-if auth_status is True:
+# Login (for streamlit-authenticator v0.2.3)
+name, auth_status, username = authenticator.login('Login', 'main')
+
+# Handle login result
+if auth_status:
     authenticator.logout('Logout', 'sidebar')
     st.sidebar.success(f"Welcome {name}!")
     st.success("You are now logged in.")
