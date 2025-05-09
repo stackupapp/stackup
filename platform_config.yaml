@@ -1,0 +1,44 @@
+platforms:
+  TOS:
+    detection_columns:
+      - Instrument
+      - Qty
+      - Trade Price
+      - Mark
+    column_mapping:
+      Instrument: symbol
+      Qty: quantity
+      Trade Price: cost_basis
+      Mark: current_price
+  
+  IBKR:
+    detection_columns:
+      - Symbol
+      - Quantity
+      - Price
+      - T. Price
+      - Market Price
+      - Cost Basis
+      - CostBasis
+      - COST BASIS
+    column_mapping:
+      Symbol: symbol
+      Quantity: quantity
+      Price: current_price
+      T. Price: current_price
+      Market Price: current_price
+      Cost Basis: cost_basis
+      CostBasis: cost_basis
+      COST BASIS: cost_basis
+  
+  Robinhood:
+    detection_columns:
+      - Symbol
+      - Quantity
+      - Price
+      - Market Value
+    column_mapping:
+      Symbol: symbol
+      Quantity: quantity
+      Price: cost_basis
+      Market Value: current_price

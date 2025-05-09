@@ -2,9 +2,18 @@ entrypoint = "main.py"
 modules = ["python-3.11"]
 
 run = "streamlit run main.py"
+
 [nix]
-packages = ["cargo", "libiconv", "rustc"]
+packages = ["cairo", "cargo", "ffmpeg-full", "freetype", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "libiconv", "libyaml", "matplotlib", "pkg-config", "qhull", "rustc", "tcl", "tk"]
 
 [[ports]]
 localPort = 8501
 externalPort = 80
+
+[[ports]]
+localPort = 8502
+externalPort = 3000
+
+[[ports]]
+localPort = 8503
+externalPort = 3001
